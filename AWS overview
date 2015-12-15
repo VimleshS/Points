@@ -9,6 +9,8 @@ EC2 Elastic compute cloud. (virtual server in cloud)
 		-> integrates with EBS
 Storage and Content Delivery   (just like hard drive)
 	S3 (Scalable Storage Services)
+		-> scalable storage in cloud
+		-> Storage of internet
 	Glacier (Archive storage in cloud)
 		-> S3's cousin
 		-> there is a delay

@@ -1,0 +1,64 @@
+S3, Glacier, EBS(dedicated to EC2, compute services), EFS(Elastic File system, nfs based)
+
+S3
+	-> primary uses
+	-> saves meta data of file + actual file = called object 
+	-> internet scale storage
+	-> built-in redundancy
+	-> provides API, Amazon CLI, SNS, SQS
+		Region -> Buckets -> Objects
+		https://BUCKETNAME.amazonaws.com/OBJECTNAME
+	-> can save media files, static files, can serves as Web Server
+
+S3 Reduced Redundancy Storage
+	-> secondary backup
+	-> lower cost
+
+Glacier
+	-> lowest cost
+	-> Archival storage, not used frequently
+	-> does not retreve the object in realtime
+	-> takes 3-4 hours to retrive just like a tape drive
+		-> direct glacier API/SDK... manage own meta data
+		-> upload object to S3.. manage object life cycle policy to move data to glacier
+		-> third party tools to push data to glacier  
+
+FEATURES
+============
+S3 advanced feature
+	-> s3 versioning
+	-> to enable this feature click check boxes on ASW console(data protection)
+	-> can configure how many verions to have
+	-> new features 
+		-> cross-region replication
+			-> lower latency
+			-> complience
+			-> security, versioning required
+
+S3 notification
+	-> SNS             .. mobile
+	-> SQS             .. uses by compute service
+	-> lambda function .. event based trigger
+
+
+
+S3 VPCE(Virtual private endpoint)
+S3 data encryption
+	-> client side encryption
+	-> configure via check box, server side encryption(SSE) let AWS do it, the way it handles
+	-> SSE with clients key we provide key to server
+
+AWS data injest option
+	-> Direct connect
+	-> internet/VPN
+	-> Storage Gateway
+	-> Import/Export
+	
+Use cases S3
+	-> build scalable we  application no worry of storage
+	-> media store
+	-> stagin area for big data analytics
+
+CloudFront
+	-> CDN
+	-> data travelling in cloud front is free

@@ -1,0 +1,85 @@
+To get see the available version.
+=================================
+http://askubuntu.com/questions/340530/how-can-i-check-the-available-version-of-a-package-in-the-repositories
+apt-cache policy <packageName>
+
+Three ways a repository can be added.
+1. A package file. (e.g)
+   http://dev.mysql.com/downloads/repo/apt/
+   (mysql-apt-config_0.6.0-1_all.deb)
+   
+   - Install package file by sudo dpkg -i /PATH/version-specific-package-name.deb
+   - apt-get update
+   -- see all available version for down load by 
+      apt-cache policy <package name> e:g [ apt-cache policy nginx ]
+
+
+http://unix.stackexchange.com/questions/60595/how-to-undo-sudo-add-apt-repository
+2. By PPA Personal package repository
+      
+   "add-apt-repository" creates a new file in /etc/apt/sources.list.d for ppa repositories
+    
+    - sudo add-apt-repository  ppa:wrinkliez/ppasearch
+    - Optionally it requires a pgp key to authenticate the repository signature.
+        http://nginx.org/en/linux_packages.html#stable
+    - sudo apt-key add <nginx_signing.key>   
+      - apt-key list
+      - apt-key del $ID
+      
+      Example
+      +++++++
+      - sudo add-apt-repository ppa:wrinkliez/ppasearch
+	  - sudo apt-get update
+	  - sudo apt-get install ppasearch
+	  
+3. By adding directly to the /etc/apt/source.list file
+   http://nginx.org/en/linux_packages.html#stable
+   
+   -Add key
+       sudo apt-key add nginx_signing.key
+   - Append the following to the end of the /etc/apt/sources.list file:
+       deb http://nginx.org/packages/debian/ trusty nginx
+       deb-src http://nginx.org/packages/debian/ trusty nginx
+       
+   - apt-get update    
+   - apt-cache policy ngnix
+   - apt-get install nginx=1.4.6-1ubuntu3.4
+   
+4. To remove packages.
+   http://www.howtogeek.com/229699/how-to-uninstall-software-using-the-command-line-in-linux/
+   
+   removes config file
+     sudo apt-get purge ...
+     sudo apt-get --purge remove ...
+   
+   removes config file and related dependent pacakages... 
+     sudo apt-get autoremove
+     sudo apt-get --purge autoremove
+   
+5. To list installed packages..
+   http://askubuntu.com/questions/17823/how-to-list-all-installed-packages   
+
+   To get a list of packages installed locally do this in your terminal:
+     dpkg --get-selections | grep -v deinstall
+   To get a list of a specific package installed:
+     dpkg --get-selections | grep postgres
+     
+     
+     
+     
+
+
+
+
+   
+   
+   
+VIMP
+++++   
+http://askubuntu.com/questions/4983/what-are-ppas-and-how-do-i-use-them   
+
+ALL IN ONE
+http://www.howtogeek.com/229699/how-to-uninstall-software-using-the-command-line-in-linux/
+       
+   
+   	  

@@ -1,0 +1,104 @@
+Default 
+	=> Div has default display of "block" will fill entire line
+	=> By Default element takes a entire width of a container unless width specified
+
+Float and Position :- are the two crucial things to position the elemens
+
+Margin and Float
+	Div positioning using margin and float
+		margin: auto 
+		// simillar to 
+		margin = auto auto auto auto;
+		         //top right bottom left
+		
+		//float pulls out the div from main conatiner and places them use 
+		//clear property to remove floats effect or use overflow:hidden
+		float: left
+		float: right
+			
+		Read more on float, display
+
+Psuedo class(27 classes)
+  A pseudo-class is used to define a special state of an element.
+	For example, it can be used to:
+			Style an element when a user mouses over it
+			Style visited and unvisited links differently
+			Style an element when it gets focus
+  
+  hover, visited, focus.. etc
+  
+  hover: which get attached to the element on hovering over it
+	a:hover{
+		text-decoration: underline;
+	}
+
+Psuedo element
+	A CSS pseudo-element is used to style specified parts of an element.
+	For example, it can be used to:
+		Style the first letter, or line, of an element
+		Insert content before, or after, the content of an element
+
+	before, after, selection, first-letter ..etc
+
+	.meta li:after {
+		content: '\\'; 
+		padding: 20px;
+	}
+	
+
+Label for
+	highlight the associated input.
+
+Image replacement
+	Use background property and supply image url and have a text but use 
+	text-indent = -999 to push it off the page
+
+
+Typography
+	fonts are not transfered to the client system, below are few properties
+		- font-family
+		- text-align
+		- margin-top
+		- font-family
+		- letter-spacing
+		- color
+		- text-transform   upcase/lowercase
+		- text-shadow      adds a shadow
+		- font-variant
+	
+	Custom fonts 
+		google web fonts (https://fonts.google.com/)
+
+Position
+	static(default), relative, absolute and fixed
+	
+	Absolute and relative positioning
+		read more here https://css-tricks.com/absolute-relative-fixed-positioining-how-do-they-differ/
+		css property is "position"
+			relative "relative to itself"
+					1. relative positioning gives us a abitlity to set top left right bottom
+					2. it also introtuces a ability for setting a absolute positioining its child elements
+			absolute positioning places the element wrt to the parent element(relative positioned element)
+					1. absolute positioning is that these elements are removed from the flow of elements on the page
+			
+Html page validation:
+	check the markup by uploading the file to the below link
+	www.validator.w3.org/check	
+	
+Install Zen coding plugin for faster markup autocompletion and usage
+	
+Reset and Normalizing	
+	reset.css
+		There is default style set by a browser which can be override by adding 
+		our own css called as default css file or use one from Meyer Eric.
+		meyerweb.com/eric/tools/css/reset
+	
+	normalize.css
+		Adds a few normalized css property and matches the older and newer browser.
+		necolas.github.com/normalize.css
+		
+CSS Framework
+	1. 960 grid system (960.gs) simillar to twitter bootstrap.
+		* notebale property
+			-	box-sizing: border-box;
+

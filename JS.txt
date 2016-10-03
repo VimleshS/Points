@@ -1,0 +1,213 @@
+==================
+    JAVASCRIPT
+==================
+
+javascript identation:
+ -4 tabspace
+ 
+use innerHTML if processing large HTML
+ (every time there is chnage in html markup entire DOM is reflowed/visited)
+
+
+Namespace: 
+ -reusable module.
+ -there is no direct support
+ -hack by using golbal object
+
+
+Exception:
+ -runtime error caused by browser
+ -script explicitly throws it by "throw"
+ -handled by try, catch and finally
+ -script can thow error as 
+  - throw new Error("my error")
+
+Modern event model(to handle event in a OO way)
+ -event can be chanined together and independently added and removed.
+ -event are captured down to target and then bubbled up
+  -DOM -> addEventListner, removeEventListener
+  -IE  -> attachEvent, detachEvent
+ 
+Seperating behaviour from content
+ -called as Un-obstrusive javascript/gracefull degradation
+		if javascript is not supported on browser fall back to degraded version (Using progessive enahancement)
+ -progessive enahancement is enabling of more advance functionality to web pages
+ -seperate html,css and js
+ -avoid inline javascript code in html
+
+Using progessive enahancement
+ -javascript disabled on client then add a default(server) behaviour.
+ 
+Javascript Object(Classical inheritence and Protypal inheritence/(Object literal))
+
+ -Classical inheritence
+    -constructor for Rectangle
+      function Rectangle(w,h){
+		  	this.width = w;
+		  	this.height = h;
+      }
+    -method/behaviour on Rectangle(defined a method called area which accepts no parameter)
+      Rectangle.prototype.area = function(){
+				return this.width * this.height;
+      }
+    
+ -can have class level method
+    Rectangle.EMPTY = new Rectangle(0,0);
+
+ -instantiate
+    rect = new Rectangle(5,6);
+    rect.area();
+    
+ -method overriding
+    Rectangle.prototype.toString = function(){
+			return "Rectangle is " + this.area; 
+    }
+ -commanly used method
+   toString, equals, compareTo, valueOf
+ -determining object type
+    myObject instanceof myClass
+
+
+Object Inheritence
+  -New class/constructor
+		function DepthRectangle(w,h,d){
+			//calls Rectangle constructor widtin DepthRectangle context.. "this"
+			Rectangle.call(this,w,h);
+			this.depth = d;
+		}
+		
+	-Inherit/Create property of DepthRectangle using Rectangle
+		DepthRectangle.prototype = new Rectangle();
+	
+	-//Reassign the constructor property of DepthRectangle to itself, it is set to Rectangle
+	 //bcoz every object have constructor property, and in earlier assignment while doing 
+	 //"DepthRectangle.prototype = new Rectangle();" it sets the DepthRectangle constructor to the 
+	 //constructor of Rectangle
+	 
+		DepthRectangle.prototype.constructor = DepthRectangle;
+		//after this assignment DepthRectangle prototype is ready to be extended.
+		
+//Classical way
+//https://developer.mozilla.org/en-US/docs/Web/JavaScript/Introduction_to_Object-Oriented_JavaScript
+
+//Object literal way
+//https://developer.mozilla.org/en/docs/Web/JavaScript/Inheritance_and_the_prototype_chain
+
+Why Classical inheritence over Object literal?
+Ans:
+  In case of a inheritence via Object literal way, every object gets a copy 
+  of a functions which indeed is a not optimised way therefore use prototypal inheritence
+	
+Extending builtin types
+	-It can be done in a simillar way as above, but care has to be taken boz we are modifying the buildin type
+	
+Regular Expression
+	- Helps in searching text in string and modifying text
+	- | is used for matching
+	- () is used for grouping
+	- eq
+	    hello or goodbye
+	    /hello|goodbye/
+	    Match 4 digit or 5 character
+	    /\d{4}|\w{5}/  
+	    Match US postal code with optional 4 digits or wow at end
+	    /^(\d{5}(-\d{4})?)$|wow$/
+	 
+	 processing string
+	  searching text using regex.
+	  - string.search 
+	  - string.match
+	  - string.replace
+
+	RegExp 
+		- object is provided by javascript and is more powerfull. It does have it own property and method.
+	RegExp.test()	
+	RegExp.exec() very important
+	RegExp.ignoreCase
+	RegExp.global
+	RegExp.source
+	RegExp.lastIndex
+
+There is a clone** property which is used for deep clone.
+if want to process/update the dom element then clone a node to do the operation and append/replace it at the end
+bcoz when there is a change in a dom element, then entire DOM is reflowed.
+
+
+===============
+    JQUERY
+===============
+
+	Changing the css of html elements
+
+		$('#btnAdd').on({
+			"click": function (evt) {
+								alert("clicker");
+					},
+			"mouseover":function (evt) {
+								console.log(evt)
+								alert("mouse over");
+					}
+		});
+		
+		-	addClass
+		- removeClass
+		- toggleClass
+		- hasClass
+
+	Inspecting the CSS for a value (reverse of above)
+	$(this)[0].className
+	$(this).css({"color":red});
+	
+	Accessing attributes
+	//inspecting this is very helpfull. It list all the standard DOM node property which can be accessed natively or by using JQuery
+		-	$(this)
+		
+	//standard DOM property access
+		$(this)[0].src
+		
+	//Jquery wrapper over same
+		$(this).attr('src')
+	
+	-use when to outputted as html
+		$(this).html('Hello <BR> world');
+	-use when to outputted as text, html is converted to text
+		$(this).text('Hello <BR> world');
+	
+	Jquery DOM manipilation methods
+	$(this).replaceWith('Hello <BR> world');
+	
+	$(this).empty();
+	
+	Adds the element/content before the node
+	$(this).before
+	Adds the element/content after the node
+	$(this).after
+	appends the element/content pf current node
+	$(this).append
+	
+	Accessing/Setting the property
+	$(this).val()
+	$('#checkedbox').prop("checked", false);
+	
+	
+	Plugin development.
+   //http://stackoverflow.com/questions/1991126/difference-between-jquery-extend-and-jquery-fn-extend
+	 //jQuery.extend is used to extend any object with additional functions, 
+	 //but jQuery.fn.extend is used to extend the jQuery.fn object, which in 
+	 //fact adds several plugin functions in one go (instead of assigning each function separately).
+
+			jQuery.extend:
+			
+			var obj = { x: function() {} }
+			
+			jQuery.extend(obj, { y: function() {} });
+			
+			// now obj is an object with functions x and y
+			jQuery.fn.extend:
+			
+			jQuery.fn.extend( {
+							x: function() {},
+							y: function() {}
+			});
+			
+			// creates 2 plugin functions (x and y)

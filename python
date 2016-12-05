@@ -1,0 +1,561 @@
+Pyhton Enhnacement Proposals - PEP
+	PEP 8 Python Style and coding 
+	PEP 20 The Zen of Python
+Import
+	import module
+	from module import function
+	from module import function as alias
+	help to help in finding the methods
+	// integer division
+	
+Data Types
+	Basic/Scalar Data Type
+		int, float, none, bool
+	E.q
+		0b10 binary
+		0o10 octal
+		int(3.5) int(-3.5) int("1002") converting to int
+		int("1000", 3) converting to base 3
+	
+	float is implemented as :
+	IEEE-754 double presicion(64 bit)
+	53 bits of binary presicion
+	15 to 16 bits of decimal presicion  
+	E.q
+		3.12, 3e8
+		float(7) float("1.865") 
+		float("nan") not a number 
+		float("inf") postitive infinity
+		float("-inf") negative infinity
+	
+	None(not a value)
+		a = None
+		a is None check if none
+	Bool 
+		True 
+		False
+		Only 0 ,0.0, empty collection[], blank string "" are falsy else are all positive
+	Relational Operator
+		== != < > <= >= 
+	
+	String and Collection
+		str bytes list dict
+			str: are a immutable sequences of a unicode codepoints
+		
+		bytes to str 
+			encode and decode method is used ( encoding(UTF-8 etc ) type must be know upfront)
+			str to bytes - encode
+			bytes to str - decode
+		
+		list: immutable list of object
+			a = [1,2,3,"222"]
+			p = list("hello") // ['h', 'e', 'l', 'l', 'o']
+		
+		dict Hashtable(key and Value)
+			e = {}
+			e = {'e': "hjahsahskakska" }
+		
+Conditional Statements
+	if True:
+		print("It's true")
+	elif:
+		print("It's elseif")
+	else:
+	    print("It's false")
+		
+	while expr:
+	    print("sssss")
+	
+	break --> to break out from a loop
+	
+	for-loop
+		for city in cities:
+			print(city)
+
+Modularity
+	__<METHOD NAME>__ are import variable/special methods.
+	
+	Python module : convienient import with API
+	Python script : convienient execution from command line
+	Python program: Perhaps composed of many modules
+
+	****Read more on PyLauncher	and shebang
+
+Object
+	id() //= object_id in ruby
+	when we pass argument (actual argument) to a function they are called as formal argument in passed in function
+    i:e def my_function(...formal argument...)	
+	we can pass in parameters by position, names and by default.
+	in case of mix and match follow positional first then named.
+	Python names scope
+		Local, Enclosed, Global, Builtin
+		
+	import words
+	type : prints the type of the object
+	dir(words): interospect the object
+
+Collection
+	str, list, dict, tuple, range, set
+	tuple : hetrogeneous immutable sequences
+		t = ("Norway", 2.3)
+		t[2]
+		t + (2.2323, 3.56565)
+		2 in (1,2,3,34,4)      //check in 
+		200 not in (1,2,3,34,4) //check not in
+		return multiple arguments from a function accpets like a golang
+	string:
+		"New" + "Word"
+		s = "New"
+		s += "Word"
+		
+		join
+		s = ';'.join(['sdsdsdsdsd','sdsdsdsdsdwewew'])
+		methods :
+			partition, format, 
+			format e:g
+			pos=(11111,434343.4, 565656)
+			"Galactice position x={pos[0]} y={pos[1]} z={pos[2]}".format(pos=pos)
+	range: 
+		range(5) | stop last excluded |0 1 2 3 4
+		range(5,10) |start stop | 5 6 7 8 9
+		range(10, 20 , 2) | start stop step  | 10 12 14 16 18
+		use enumerate keyword for iteration
+	list: hetrogeneous mutable sequences (arrays)
+	coping a list:
+		u = seq[:]
+		u = seq.copy()
+		u = list(seq) //constructor
+	dict: 
+	set: unordered collection of unique immutable data
+                                -------
+Exception Handling
+	-Raise
+	-Handle
+		try:
+			.......
+		except (ValueError, TypeError):
+			pass //special keyword for no operation
+		
+		try:
+			.......
+		except (ValueError, TypeError) as e:
+			return -1
+	LBYL : Look before you leap
+	EAFP : Its easier to ask forgiveness than a Permission | ---> Pythonic philosophy
+	try:
+		......
+	finally:
+		pass
+
+
+Comprehensions, Iterables and Generators: Works with iterable objects
+	comprehension: are consice syntax for describing lists, sets, dict in a declarative or a functional style
+	List comprehension, Set comprehension, Dictionary comprehension
+	
+	List comprehension:
+		syntax: [expr(item) for item in iterable ]
+		word = "A jjsdksjd jfkds jfjsdfh".split() //['A', 'jjsdksjd', 'jfkds', 'jfjsdfh']
+		[len(wrd) for wrd in word]  	//[1, 8, 5, 7]
+	Set Comprehensions
+	    syntax: {expr(item) for item in iterable }
+	Dictionary comprehension
+	    syntax: { key:value for item in iterable }
+		
+	Filtering predicate:
+		All three types of comprehension support filtering predicate
+		[expr(item) for item in iterable if predicate(item)] 
+	Comprehensions are used a lot, which takes one item at a time and continues till end
+
+	Iteration protocol
+		Iterable object:
+			Iterable object can be passed to the built in iter() function to get an iterator
+				iterator = iter(iterable)
+		Iterator object: 
+			It supports the iterator protocol, which requires that we can pass
+			iterator object to the built in next() function to fetch the next value from the underlying collection
+				item = next(iterator)
+		
+	Generators function:
+		- specify iterable sequences
+		- lazily evaluated
+		- can model infinite sequence
+		- are composable into pipelines
+		- a func which uses yield instead of return
+		e.g.	
+			def gen123:
+				yield 1
+				yield 2
+				yield 3
+				return
+		generators are the custom iterator.
+		used as 
+			g = gen123()
+		called as 
+			next(g) //1
+			next(g) //2
+			next(g) //3
+			next(g) //StopIteration error
+		Generators are lazy and infinite
+		Generators Comprehensions
+			syntax: ( expr(item) for item in iterable )
+			single use objects
+			e.g.
+				sum(x*x for x in range(1,1000001))
+				- uses generators function to compute sum of squares till 1000001 with almost 0 memory consumption
+				above e,g is same as
+				#	def generator_function
+				#		for x in range(1,10000001)
+				#			yield x*x
+				-- or --
+				#   generator = (x*x for x in range(1,10000001)) 
+				#   list(generator)
+				
+		
+	Classes:
+		use CamelCase
+		there is no public private or protected
+		
+	Files and resourse management:
+	- Open()
+			file, mode, encoding
+			e.q f = open('myfile.txt', mode='wt', encoding='utf-8')
+			sys.stdout.write(line)
+	with-block
+		manages the context
+	
+	Test
+		unittest module
+			fixtures:
+				code that runs before and/or after each test function
+				makes sure that the envi for test case is as expected.
+			teardown: 
+				runs after each test methods.
+			assertions:
+				specify test for conditions and behavior
+					x.is_valid()
+					x ==y
+				
+						=====================				
+						#PYTHON BEYOND BASICS
+						=====================
+	Import:
+	import sys
+	sys.path #lists down all the location where python will search the file for loading simillar to load_path in ruby
+			 #we can manully append the location as well like 
+	sys.path.append('not_searched')
+	PYTHONPATH gets added to the sys.path when python starts..
+	
+	Basic package structure
+	
+	path_entry/                     ....must be in sys.path
+	|--my_package/                  ....package root 
+		|-- __init__.py             ....package init file(makes a module as package)
+										A package is just a directory containing a file named __init__.py
+										
+										urllib.__file__ # shows a file contained.
+										urllib.__path__ # shows a path of a file contained.
+	Imports statement
+	Absolute: When importing a module from top level file
+	Relative: importing a module in itself(same package)
+		e.q.
+		from ..a import A (.. means 2 level up)
+		from .a import A (.. means 1 level up) wrt current location
+	
+	__all_: list of attribute name imported via from module import *
+	
+	namespace package:
+	PEP420: a package split across multiple directories
+	- they have no __init__.py file, to avoid complex initiallization ordering problem
+	How does python finds a namespace package e.q foo
+		1. Python scans all entries in sys.path.!
+		2. If a matching directory with __init__.py is found, a normal package is loaded.
+		3. If foo.py is found, then it is loaded.
+		4. Otherwise, all matching directories in sys.path are considered part of the namespace package.
+	
+	Executable Directories: 
+		- directories containing  an entry point for python execution.
+		place a __main__.py file in a root of reader directory.
+		now call it as :
+		- python3 reader #code present in __main__.py will execute.
+			e.g.
+				E:\Workspace\Python\Plural Sight\python-beyond-basics\02-python-beyond-basics-exercise-files>python reader reader/__main__.py
+	
+	executable zip directory
+		make a zip of above file and it works
+	
+	Recomemded project structure
+		project_name
+			__main__.py             #if its a executable directory
+			project_name
+				__init__.py
+				more_source.py
+				subpackage1
+					__init__.py
+				test
+					__init__.py
+					test_code.py
+			setup.py
+										
+	Modules as a singletons
+		put code when modules are initialized.
+		- for global variables
+		
+	Callable Object
+		- callable functions
+		- lambdas
+	Functions in pythons are first class variables
+		In a very sense functions objects are a callable objects in so far we call them.
+	__call__
+		
+		e.g
+		######code snippet
+		import socket
+
+		class Resolver:
+		
+			def __init__(self):
+				self._cache = {}
+		
+			def __call__(self, host):
+				if host not in self._cache:
+					self._cache[host] = socket.gethostbyname(host)
+				return self._cache[host]
+			
+		--> from a REPL
+			from resolver import Resolver
+			resolve = Resolver()
+			resolve('google.com')  	
+		
+	Classes are itself callable.
+	
+	Conditional statement
+		if condition:
+			result = true_value
+		else:
+			result = false_value
+
+	Conditional expression
+		result = true_value if condition else false_value
+		
+	Lambdas
+		mylambda = lamda name: name.split()[-1]
+			- it is a single string
+			- no return statement
+	
+	callable()
+		built-in function to determine object is callable or not, it returns true or false
+		callable(mylambda) #returns True
+	
+	Extended formal arguments
+		def extended(*args, **kwargs):
+		e.g 
+		- print(1,2,4,5,5,6,6...)
+		- "{a} is a {b}".format(a='', b='')
+		
+		**kwargs: 
+			-keyword arguments(dict) formal arguments at the function defination site
+			-if present it must be last argument(like ruby hash)
+			-valid for regular functions, lambdas and other callable
+			def tag(name, **kwargs):
+				pass
+			
+			tag('img', src='monet.jpg', alt='Sunrise..') #  name = 'img' and kwargs = {'src':'monet.jpg', 'alt':'Sunrise..'}
+			
+	Extended actual arguments
+		extended(args, *args1)
+		t = (1,2,3,5,6,7)
+		extended(*t) # args = 1 and agrs1 = (2,3,5,6,7)
+		
+		extended(red, blue, *args1)
+		d ={'red':62, 'blue':22, 'green':23} 
+		extended(**d) ## red= 62 blue = 22 and args1 = {'green':23}
+	
+	CLOSURE AND DECORATORS
+		Local functions: just like pascal
+		
+		def func()
+			def local_func()
+				a = 'Hello'
+				b= 'wordl'
+				return a + b
+			
+			x = 1
+			y = 2
+			return x + y
+		
+		They are usefull for
+			•Useful for specialized, one-off functions
+			•Aid in code organization and readability
+			•Similar to lambdas, but more general
+				•May contain multiple expressions
+				•May contain statements	
+				
+		__clousure__ : checks for closure
+		
+		global and nonlocal are the keyword used to modify the variables from respective scope
+		-> global message
+		   message = "Change"
+		
+		function decorators:
+			- modify or enhance function without changing their defination:
+			- takes a callable as parameter and returns a callable.
+			- (remember decorator pattern)
+			e.g
+				def escape_unicode(f):                        # f is a function
+					def wrap(*args, **kwargs):
+						x = f(*args, **kwargs)                # functionality of f is  called and decorated with wrap ascii
+						return ascii(x)
+					
+					return wrap                               # wrap is a closure
+				
+				@escape_unicode                               # marks func as a decorator
+				def northern_city():
+					return 'Tromsø'				
+					
+				call it as 
+				northern_city()                              # prints 'Troms\\xf8'
+				
+				Similarly class object can be decorated
+				from call_count import hello
+				hello('Fred')
+				hello('Wilma')
+				hello('Fred_2')
+				hello.count
+				
+		Multiple decorator:
+		They are processed in a reversed ordering
+		
+			@decorator1   # processed second
+			@decorator2   # processed first
+			def myfun():
+				pass
+				
+				
+	Property and Class Methods
+		class attribute:
+			- use class name to access class variables
+			- they can be access by class. notation as well as from instance .. 
+			- best to used with class. notation
+			e.g.
+				class ShippingContainer:
+				
+					next_serial = 1337
+					def __init__():
+						ShippingContainer.next_serial += 1
+				
+				alternative decorators are
+				@staticmethod or @classmethod
+				
+				@staticmethod do not uses class or instance objects
+				@classmethod does uses
+				both class and static methods supports polymorphic methods dispatch when invoked through a instance.
+				
+    String and Representation
+		- str() 
+		- repr() #represnetation for developers, debugging more information
+		--- tostring
+		depends on __str__()  __repr__()
+	
+	Iterables and Iteration
+		comprehension:
+			short hand syntax for creating collections and iterable objects
+			
+		map():
+			apply a function to every element in sequence, producing a new sequence
+			map(ord, 'the vimlesh is great')
+		filter:
+			apply a function to every element in sequence, producing a new sequence with the element for which the function return True
+			filter(is_odd, [1,2,3,4,5])
+			of 
+			filter(lambda x: x>0, [1,-5,0,3,9])
+			
+			PYTHON 2 map and filter returns a list instead of iterable object
+			-----------------------------------------------------------------
+		functools.reduce(ruby inject)
+			repeatedly applies a function to the element of a sequence, reducing them to a single value
+				-from functools import reduce
+				-import opertor
+				-reduce(operator.add, [1,2,4,5,])
+				
+			Using map-reduce
+			
+			>>> from map_reduce import *
+			>>> from functools import reduce
+			>>> t = reduce(combine_counts, counts)
+			>>> t
+			
+	Inheritence
+		single inheritence
+		- class SubClass(BaseClass)
+		
+		python treats __init__ like any other methods(other than initializing)
+		base class __init__ is not called if overriden
+		use super() to call base __init__()
+		
+		
+		isinstance : takes a object and determine if an object os of specified type
+			isinstance(3, int) #True
+		issubclass() #operates on Type only
+		
+		multiple inherittence:
+			__bases__ list down the base classes in the order of declaration
+			int.__bases__
+			IntList.__bases__
+			
+		method resolution order(MRO):
+			__mro__  #ancestors list in a ruby and call to method is resolved from this entry
+			 special class: 
+				IntList.__mro__ #tuple
+				IntList.mro()   #list
+				
+		python uses C3 algorithm to determine/calculating MRO
+		few qucik note abt C3
+			-subclass comes before their base classes
+			-Base class order from class defination is preserved.
+			**** some base defination will violates C3 and python refuses to compile them.
+			
+		super()
+			super() returns a proxy object which routes method calls.
+				Bound proxy
+					bound to a specific class or instance
+				Unbound proxy
+					not bound to a class or instance		
+			
+			bound proxies:
+				- instance-bound
+				- class-bound
+			
+				class-bound proxy
+					super(base-class, derived-class)
+				instance-bound proxies
+					super(class, instance-of-class)
+	
+		
+	Interospection
+		- type
+			i = 7
+			type(i) #<type 'int'>
+			equals to 
+			i.__class__
+			type(i)(78) #call int contruc. from type
+			i.__class__.__class__ #<type 'type'>
+			issubclass(type, object) # True
+			isinstance(i, int) #true
+			
+			return a lists of attribute for instance
+			- dir(i)
+			- hasattr(i, 'conjugate')  #checks for a callable attribute(method)
+			- getattr(i, 'conjugate') # return a method
+			- callable(getattr(i, 'conjugate'))
+			
+		-scope
+			-global() #prints all the gobal attrbutes
+			add a value to a global
+				global()['tau'] = 6.283145122
+			-locals # as per name
+		
+		-inspect module
+			#lot of attributes which helps in doing so.....
+			
+			
+			

@@ -1,0 +1,503 @@
+http://stackoverflow.com/questions/22495409/how-to-run-cql-files-cql-from-within-cqlsh
+http://highscalability.com/blog/2016/8/1/how-to-setup-a-highly-available-multi-az-cassandra-cluster-o.html
+
+E:\Workspace\cassandra-developers\4-cassandra-developers-m4-exercise-files\scripts\m3>"c:\Program Files\DataStax-DDC\apache-cassandra\bin\cqlsh.bat"
+source 'users.cql';
+> use pluralsight;
+
+
+
+Cansandra developed @ facebook - 2008
+
+	Cansandra cluster is a true master list with peer to peer sytem with sytem point in failure.
+	
+	Data is stored with token values
+
+	
+	Cansandra docker tool command
+	
+	#pull and run the docker image
+	1. docker run --name=n1 -d tobert/cassandra
+	
+	docker exec -it n1 nodetool status
+	docker exec -it n1 nodetool ring
+	
+	loging into cassandra continer.
+	docker exec -it n1 /bin/bash
+
+	
+	Cassandra terminology
+	
+	~RDBMS tablespace
+	
+	Keyspace  => Table => Partition => rows
+	   ^
+	   |
+	Replication Strategy
+			Simple Strategy
+			
+								====================
+								Cassandra from DS201
+								====================
+
+Core concepts
+	
+	In distributed systems, it is impossible to generate a sequence of number therefore 
+	cassandra uses Uuid or timeuuid.
+	Imports/Exports
+		- Copy table1(column1, column2, column3) from 'tabledata.csv'
+		- to skip first line from csv file 
+		  Copy table1(column1, column2, column3) from 'tabledata.csv' with Header true;
+	Partition
+		Allow Filtering allows where on non key columns not recomended
+	
+	Driver Api	
+		- We connect to cluster
+		- Cluster is listening to changes in node 
+			e.q Adding a node or deleting a node and responds to that automatically
+	
+	Cassandra uses "Token Aware policy"
+	
+	Distributed Architure (Nodes)
+		- Cassandra is a clustering systems(a distributed systems)
+		- A node we have is a JVM process; a java process i:e a cassandra and it is written
+		  in Java.
+		  
+		  +--------------------+
+		  |JVM                 |
+		  | 	cassandra      |
+		  +--------------------+	
+		- Donnt recomended running on a SAN (storage area network)
+		- 3000-5000 transaction per second/core
+			1-3 TB (SSD or rotational) per node.
+		- how do we handle this much.... we have a nodetool
+		- node participate in a cluster
+		
+		
+	Ring(Cluster Ring)	
+		-This is how cassandra works to scale just add more nodes
+		-Each node is going to assign a different range of data called as token range and
+		 that range of data decides the specific node.
+		-Coordinator node uses token value to decide a to specific node, passess data to 
+		 it and send ack to client.
+		 
+		 So what is range ?
+		 Ans +(2 raise 63) -1 / -(2 raise 63) accross the ring/cluster
+		 
+		       |            O         ^
+		       |  O ( partitioner ) O | 
+		       V            O         |
+	           +----------------------^ 
+				O is node
+				
+		partitioner distribute the data(token range) for nodes		
+		
+	Joining a Cluster
+		- Node join the cluster by communicating with any node(Gossip)
+		- Cansandra find seed node list of a possible nodes in cassandra.yaml
+		- Seed nodes communicate cluster topology to the joining node.
+		- Once new node join the cluster, all nodes are peers
+		- There is a lag time from the node gossip to joining the cluster as it take some 
+		  time to distribute data from existing node to the new node. New node does not 
+		  become functional untill it fully joins the cluster (get the data)
+	
+	Driver
+		Drivers intelligently choose which node would best coordinate a request
+	
+		TokenAwarePolicy 
+			Coordinator node is not important as driver knows the token for individual 
+			node and can connect directly
+		RoundRobinPolicy 
+			 driver round robins the ring
+		DCAwareRoundRobinPolicy
+			driver round robins the target data center
+				
+	Peer-Peer
+		A traditional relational db look like 
+			
+			Client ----> Server
+		
+		A replication strategy involves a Leader and rest Followers
+		
+		                             
+    	                  +--------+       +--------+  +--------+
+		                  |Follower|       |Follower|  |Follower|
+		                  +--------+       +--------+  +--------+
+                                                       
+    	                  +--------+       +--------+  +--------+
+		                  |Follower|       |Follower|  |Follower|
+		                  +--------+       +--------+  +--------+
+		                                               
+                          +--------+       +--------+  +--------+
+			              | Leader |       | Leader |  | Leader |
+	                      +--------+       +--------+  +--------+
+						  
+                                        |-- Sharded based on roles--|
+	
+	                     ---------------------------------------------
+						 
+	                                   Client
+									   
+									   
+						Followers are read replicas with little lag			   
+						What if a leader blows away, then it all depends upon how much 
+						fault tolerant systems we have, by the time another leader turns 
+						up something is lost in between.
+						In cassandra every single node can act as master or slave.
+						
+						
+	V Nodes
+	   Regular token assignment is not always an even spread/assignment
+	   
+	   In Vnodes, each nodes has several tokens it manages, or, 
+	   Vnodes allows several smaller token ranges per nodes and it breaks up these ranges
+	   across the cluster
+		-	3.0+ has 256 ranges per node
+	    -	num_token in cassandra.yaml configures Vnodes
+	
+	Gossip
+		Q> What is gossiped?
+		A> Cluster Metadata
+		
+		In this nodes communicate to the random node about the netadata and these continues
+		till cluster is informed with the nodes status
+		
+		
+	Snitch	
+		detemine/declare each node's rack amd data cluster
+		
+		Simple Snitch - (default)
+		Propert Snitch - Cassandra.topology.property
+		GossipingProperty -Snitch cassandra.rackdc.property used mostly in this changes 
+							has to updated on the node file only
+		RackPropert Snitch - not used
+		
+		Other Snitch like 
+		- EC2Snitch
+		- EC2MultiRegionSnith
+		- .
+		- .
+
+	Replication
+		RF=3 is recommended for production
+		
+	Network Topology Strategy for multi region cluster
+	
+	Consistency
+		CAP Theorem                    +---------+
+								+------|--+  A   |    
+		                        | C +--|-X|---+  |               
+								|   |  +--|---|--+               
+								+---|-----+ P |       
+						            +---------+
+	
+			C consistence
+			A Availability
+			P Partition
+				
+			Cassandra fits in A & P region, that does not mean that it is not a consistence
+			systems there are many consitency level
+			ONE, TWO, QUORUM, EACH_QUORUM, LOCAL_QUORUM, LOCAL_ONE,ANY, ...
+	
+	Hinted Handoff
+	
+	
+	                          ->O (Node)
+		   Coordinator Node  / 		                     
+	  -Data--------------->O ------> O(Node)
+	                         \ 
+  	                          ->(X)(Disconnected Node)
+	
+		Failed Writes
+			- Data is stored on a coordinator node.
+			- Whenever the down node comes online then the coordinator node writes the 
+			  data to node
+			  
+			  There is cap of 3 hours for storing data on coordinator nodes (cassandra.yaml)
+	
+	Read Repair
+		N/W partition sometimes causes nodes to get out of sync, nodetool helps to keep 
+		them in sync
+		
+		Nodetool Repair
+			- Sync all data in the cluster
+			- Manual process
+			
+	Write-path
+	
+                             A Node
+                             +---------------------------------------------+
+                             |   Server Process in a JVM                   |
+                             |    +-----------------------------------+    |
+                             |    |  HDD                              |    |
+                             |    | commit log      sstable           |    |
+                             |    | | data 1 |     | data 1 |         |    |
+                             |  .>| | Data 2 |     | Data 2 |         |    |
+                             | /  | | Data 3 |     | Data 3 |         |    |
+                             |/(1)+-------^-------- ^-----------------+    |
+      Data------------------>|       delete\(4)    /(3)                    |
+                             |\(1)+---------------/-------------------+    |
+                (2)          | \  | RAM          /                    |    |
+      Ack<------------------ |  '>| memtable    /                     |    |
+                             |    | | data 1 | /                      |    |   limited in
+                             |    | | Data 2 |/      ,---------------------|-- size since
+                             |    | | Data 3 |   <--'                 |    |   it is a JVM
+                             |    +-----------------------------------+    |
+                             |                                             |
+                             +---------------------------------------------+ 
+		
+		- When data is arrives in a server process it is written to HDD commit log for 
+		  durabilty purpose only and then it is written to RAM memtable.
+		- Ack is send to client   
+		- When memtable gets full it is written back to HDD as sstable(second stop) and same
+		  data from commit log gets deleted in a process called "Flush"
+		-  When we have two or more sstable in HDD then data is merged via a process
+		   called compaction
+		   
+		Purpose of commit log
+			It is there to replay if a crashed node restart.(duarability)
+			
+	Read Path
+		-complicated
+		              
+					  +---------+    +---------+   +---------+
+       component 1    | sstable |    | sstable |   | sstable |
+					  +---------+    +---------+   +---------+
+		             
+                      +---------+  
+	    component 2   |memtable |
+	                  +---------+
+		   ,-------- '
+          /
+		 /                              |      RAM              |     HDD
+		'                               |                       |
+		|                               |      Partition        |         
+		|                               |      Summary          |     Partition
+		|                   Bloom       |      Index            |     Index           
+		|merge       --->  Filter       |   +---------------+   |  +---------------+  
+		|sort             [Maybe/No]    |   | token | offset|   |  | token | offset| in sstable
+		|with         gives probable    |   |-------+------ |   |  |-------+------ |  
+		|memtable           token       |   | 0-30  | 36    | ---->|  1    | 36    |  
+		|result      --->  Key          |   | 31-99 | 99    |   |  |  2    | 99    |  
+		|                 Cache         |   |  ...  | ..    |   |  |  ...  | ..    |  
+		|             +---------------+ |   +---------------+   |  +---------------+  
+		|             | token | offset| |                       |                |    
+		|             |-------+------ | |                       |                |    
+		|             |  1    | 36    | |                       |                |    
+		|             |  29   | 992   | |                       |                '    
+		|             |  ..   | ..    | |                       |               /
+	    '             +---------------+ |                       |              /
+	     \                                                                    /
+	      \                                                                  / 
+	       \                                                                / 
+            \           +---------------------+                            /
+	         \          |                     |                           /
+			  '---------|     sstable         | <------------------------'
+						|                     |
+						+---------------------+
+	
+	
+	Compaction
+		
+          Read		  Bloom --> Key --> Partition -> Partition --> SSTable
+          --->  	  Filter    Cache    Summary      Index  
+        	                              Index      
+								
+		Why ?
+			If we have more sstable them more lookup in the sstable therefore it is always 
+			compacted into one (Reduced to one, saves space , lookup time and optimization)
+								
+	
+								====================
+								Cassandra from DS220
+								====================
+
+
+	 In Sql world primary key specifies uniqness and in cassandra world primary key specifies 
+	 what we are querying on and also uniqness.
+	 
+	 In cassandra uniqness comes in last.
+		pkey( (tag), added_year, video_id )
+					  |___ cluster key ___|
+
+	Range search is only possible on clustering columns and not on primary keys
+	
+	Primary keys are only for partition & is hashed by a cassandra algorithm.
+	
+		|-----------------------------------|
+		|        |  KEY       KEY      KEY  |
+		|  PKEY1 | VALUE     VALUE    VALUE |
+		|-----------------------------------|
+		| PKEY2  | KEY        KEY      KEY  |
+  /---->|        |VALUE      VALUE    VALUE |
+ /	    |-----------------------------------|
+/ 
+primary key / partition key
+
+	UDT(User defined types)
+		Use frozen keyword for all user defined datatypes.
+
+	Native integer has a concurrent issue therefore use counter datatype.
+		-Perform only update with counter datatype
+		 bcoz we cannot assign a values to a counter
+		-A caveat, they must be the only non partition key column inside a table
+		-There can be a multiple counter column but only counter datatypes
+		
+	Sourcing
+		- Several cql statement in a file.
+		- Source .'/myscript.cql';
+		
+	Denormalization for query performance.
+		Concept :-
+		If I want to look up the comments by a video I have a table that specifies the 
+		query directly, and If I have to lookup a comments by user I have another table that 
+		satisfies that query directly aswell. We denormalize means we duplicate data in the 
+		tables our goal is fast query. If keeping two table in sync concerns us take a look
+		at batch statement.
+		
+	Conceptual data model is drawn with Chen Notation.
+		- It helps to identify entities and relation
+		- Non technical fellas can also do it.
+		- Not bound to cassandra.
+		
+		Purpose:-
+		 Understand data
+		 Essential objects
+		 Constraint
+		 
+		 refer to http://www.conceptdraw.com/examples/what-is-chen-notation for diagram.
+		 
+		 Cardinality
+			Attribute types
+				-Key
+				-Composite ([name]= [firstname + lastname])
+				
+			double line multiple values like tags, genre
+			
+		Q> Determine the key of a 1-1 relationship?
+		A> Key attribute of either participating entity types
+
+		Q> 1-n relationship?
+		A> Key attribute of entity type on the many side
+		
+		Q> m-n relationship?
+		A> Key attribute of both participating entity
+		
+		
+	Mapping
+		-Conceptual
+		-Logical
+		-Physical
+	
+	Algorithmic
+		Convert the Chen notation to Chebotko Diagram
+			-Identify key and cluster
+			-Static columns if any
+			
+	Conceptual to Data Model
+		-Know your data
+		-know rour queries
+		-Nest data
+		-Duplicate data
+	
+		Know your queries
+			- Partition per query (ideal)
+			- Multiple partition per query (acceptable)
+			- Table scan (Anti pattern)   \ _ then how to serve.(Ans. Nest Data)
+			- Multi Table (Anti pattern)  / 
+			
+		Nesting technique
+			- Clustering columns
+			- UDT
+			
+		Duplicate data
+			duplicate data instead joining them.
+			* use partition per query access pattern
+	
+		Mapping Rules
+			1. Entities and relationship
+			2. Equality search attribute
+			3. Inequality search attribute
+			4. Ordering attribute
+			5. Key attribute
+			
+		Always remember 
+			partition size is approx 100 Mb
+			nos of values in a partition is 2 billion
+			
+		Mapping pattern
+			1. m:n
+			
+		Data duplication
+		Data consistency
+			-Update in multi tables
+			-We cannot update primary key therefore we must insert new record and delete old
+			-We can read/write while Batch is in progress
+			-Batches are there for data consistency
+		
+		Join query(Always a client side)
+		- Performance is degraded
+		- Avoid
+		- Can take help of apache sparks on cassandra to validate that duplicate data is consistence
+			(kind of maintaining a referential integrity)
+		
+		Transaction
+			A Atomicty
+			C Consistency
+			I Isolation
+			D Durability
+			
+		Cassandra does not support ACID, however single insert, update delete are atomic, isolated
+		and durable
+		
+		Cassandra lightweight transaction
+			Compare and Set CAS operation with ACID properties at partition level
+			 - Read before write(once a while it is required)
+			 e.q 
+				INSERT ......... IF NOT EXISTS;
+				UPDATE ......... IS some_field = 'value';
+		
+		Data Aggregation (functions)
+			Sum  Avg Count Min Max
+			X    X    Ok    X  X
+					 Only
+				   Supported	 
+		
+		Key optimization 	
+		 - Use surrogate key like timeuuid
+		
+     Table Optimisation
+		Design a primary key with a thought of minimising the partition size below 100 Mb
+			- By adding existing column to pkey or
+			- By adding artificial column like bucket to pkey (bucket 1..50, 51..100)
+			- Split table into 2 or more with regular columns
+			- Cache computed results, aggregated data
+		
+	Concurrent Access
+		-Use counter datatype
+		-Use lightweight transaction
+		
+				
+			
+			
+
+
+
+	 
+example of table create										
+	
+		CREATE TABLE videos_by_actor (
+		actor text,
+		added_date timestamp,
+		video_id timeuuid,
+		character_name text,
+		description text,
+		encoding frozen<video_encoding>,
+		tags set<text>,
+		title text,
+		user_id uuid,
+		PRIMARY KEY ( (actor), added_date, video_id, character_name)
+		) WITH CLUSTERING ORDER BY ( added_date DESC, );
+	
+	
+	

@@ -1,0 +1,19 @@
+https://www.howtoforge.com/tutorial/ubuntu-postgresql-installation/
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-postgresql-on-ubuntu-16-04
+
+Users
+  postgres
+  my_pg_admin
+
+
+To Change password.
+
+Enter on the command line:
+
+$ sudo -u postgres psql postgres
+postgres=# \password postgres
+You'll see:
+
+Enter new password: 
+Enter it again:
+

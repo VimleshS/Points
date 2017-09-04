@@ -28,3 +28,7 @@
     Cherry Pick
         https://www.devroom.io/2010/06/10/cherry-picking-specific-commits-from-another-branch/
 
+#### Rails 
+        https://www.ralfebert.de/snippets/ruby-rails/models-tables-migrations-cheat-sheet/
+
+

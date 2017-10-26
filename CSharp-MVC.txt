@@ -1,0 +1,647 @@
+Tool and extension 
+	Visual Studio Productivity Power Tools
+	Web Essential
+	
+When application starts it calls Application_Start() from present in MyApplication present
+in Global.asax. MyApplication derives from System.Web.HttpApplication
+	Packages.config => file is like gemfile for .net application
+	Startup.cs => a newer approch in .net and will replcase Global.cs in near future.
+
+For bootstrap template visit bootswatch 
+	Download lumen-bootstrap css files and place it in a Content folder.
+	Next, open up a bundleconfig.cs and add bundle specific to client side assest.
+
+	MVC Fundamantals,
+		ActionResult : Base class for all action resolves in ASP.NET ( for returning )
+		
+		+------------------------------------------------------------------------------+
+		| Types of ActionResult                |      HelperMethod                     |
+		+------------------------------------------------------------------------------+	
+		|     ViewResult                       |       View()                          |        
+		|     PartialViewResult                |       PartialView()                   |
+		|     ContentResult                    |       Content()                       |
+		|     RedirectResult                   |       Redirect()                      |
+		|     RedirectToRouteResult            |       RedirectToAction()              |
+		|     JsonResult                       |       Json()                          |
+		|     FileResult                       |       File()                          |
+		|     HttpNotFoundResult               |       HttpNotFound()                  |
+		|     EmptyResult                      | hack --> return new EmptyResult()     |
+		+------------------------------------------------------------------------------+	
+		
+	    ActionParameters(Inputs to action)
+			- querystring
+			- formdata
+			
+			movies/index/1
+			in a routesconfig.cs there is a route defined as "{controller}/{action}/{id}"
+			`id` is a querystring parameter in a controller action, if we chnage it to
+			myid then that will not work.
+			
+			Create custom routes
+				simillar to ror routes start from most specific to generic
+				and use code something like
+					routes.MapRoutes( name: "moviesbyRelasedate",
+					url: "movies/released/{year}/{month}",
+					default: new {controller = "movies", action ="byReleasedate", id= "urlparam"}); //anonumous object
+					
+					there is a one more parameter for applying constraints.
+					This way fo defining route works, but is is very rigidly tied to the 
+					controller action method.(see action) so therefore attribute route
+				
+				Attribute Routes(preferred way)	
+					to use attribute route enable it first by adding below line in routes.cs
+						routes.MapMvcAttributeRoutes();
+					then go action defined in controller and add route attribute.
+					
+					[Route("movies/released/{year}/{month:regex(\\d{4}):range(1, 12)}")]
+					public ActionResult byReleasedate(int year, int month)
+					..	
+					
+					there are other contraints as well search on web.
+				
+			Passing data to view
+				Two ways to pass data to view
+					- ViewData dictionary
+							This way is very fragile, so MS decided and introduced viewbag
+							in previous version asp mvc
+					-ViewBag
+					-Just use View Helper method and pass data to view and yes import using
+					 statement for model as
+							@model Vidly.Models.Movie //for unboxing just to let know what
+								kind of model we are passing in view.
+							and use in view as @Model.Name
+					
+					-View Model
+						used when we have to pass data from many tables, create a viewmodel
+						class and the do corresponding changes in views @model ....
+						statement.
+					-To pass a List use..
+						@model IEnumerable<mvc_migration.Models.Movies>
+			
+	Working with data
+		Code First Model
+			-goto tools - Nuget package manager - package manager console
+			
+				1. enable-migrations | creates a migrations folder with config file in it.
+				2. add-migration InitialModel  | creates a model named InitialModel
+					add users specific model in ApplicationDbContext to make 
+					application aware of users specifics model and rerun the below migration
+				3. add-migration InitialModel -force | re run migration
+				4. update-database | appliies chnages over to database.
+					by default it will create mdf database with tables(show hidden files)
+				Allways aim for smaller migration and commit so that they canbe reverted easily
+				
+				*For entity framework wo work with table it requires a primary key, by convention
+				it should be 'Id' or 'Type plus Id'
+				*Navigational property to work it should something like
+					public MembershipType MembershipType {get; set;}
+				To Seed Data:
+					Add a migration file.
+				To apply constraints to entity class. 
+					2 ways	
+						1 Data Anotations
+							[Required]
+							[StringLength(255)]
+						2 Float Apis
+				Eager Loading
+					using System.Data.Entity;
+					
+					_context.Customers.Include(c => c.MembershipType);
+			
+		Building Form 
+		
+		Data Validation 
+			3 step process
+				1. Add Data Anotations
+					[Required] use with @Html.ValidationMessageFor(m=>m.Name)
+				2. Use !ModelState.IsValid and if invalid shows the same form again
+					
+				3. Add validation messages to our form.
+			
+			Client Side Validation
+				By default it is NOT enabled.{see bundleconfig.cs "~/bundles/jqueryval" is not referenced any where}
+				we have to reference it manually in code where we required by 
+				
+				@section scripts
+				{
+					@Scripts.Render("~/bundles/jqueryval") 
+				}
+				now this line will perform client side validation, but only works for 
+				standard data anotations.
+				
+			CSRF (cross site request forgery) is prevented with anti-forgery tokens
+				use @Html.AntoForgeryToken() helper method in views
+				It method will create a token which is like a secret code and put it as a 
+				hidden field, and also as a cookie on the users computer
+					-> to see cookie, (Chrome ) goto Resourses -> Cookies --> localhost
+				so we give the user a token and when they post the form we're going to get 
+				these two values and compare them if they match then they are legitimate 
+				request.
+				to see this at server side decorate controller action with 
+				[ValidateAntiForgeryToken]
+				
+	What is Web Api ?
+			- Returns only raw data
+			- less bandwidth
+			ASP.NET Web API framework is used behind the scene.This framework was developed 
+			after ASP.NET Mvc but follows same architechral principles and ActionResult with 
+			few minor differences.
+			
+			Building Api:
+				We have to enable APIs by adding below line in Application_Start method of Global.asax 
+				GlobalConfiguration.Configure(WebApiConfig.Register)
+				
+				and imports 
+				using System.Web.Http;
+				using System.Web.Routing;
+				
+				Controllers of Web Api derives from ApiController as opposed to just Controller
+				
+				Note:
+					To mark a action as post we can either use [HttpPost] attribute or follow 
+					method naming convention suggested by MS as 
+					
+					// [HttpPost]
+					public PostCustomer(Customer customer){				
+						// throw new HttpResponseException(HttpStatusCode.BadRequest)
+					}
+					
+					Adding new api controller adds a WebApiConfig.cs with routes for api
+				
+				Why Use DTO
+					Normally when we directly use domain model (like Customer or Movie) they 
+					consider the implementation detail which can change very frequently as
+					we implement new features on our application that can potentially break
+					existing clients that are dependent on domain model like customer,so 
+					therefore we need to make contract of APi as stable as possible, so is 
+					the need of data transfer object which possibly can change with a very
+					slower speed in required as compared to domain model.
+					
+					While using DTO we can levarage AutoMapper for property mapping one to one
+					instead of grabbing one by one.
+					
+					Notations
+						property we exposed via pascal notaions						
+						JS  uses camel case
+						
+						Pascal 
+							e.q IsSubscribedToNewsletter
+						Camel
+							e.q isSubscribedToNewsletter
+							
+					Web Api config has a different route config file present in WebApiConfig.cs
+					in App_Start folder. It does not have a action has we did in MVC routes.
+					
+					To use automapper, 
+						1. Create a MappingProfile.cs in App_Start folder
+						2. Initialize automapper with mapping profile just created in Global.cs
+								Mapper.Initialize(c => c.AddProfile<MappingProfile>());
+							
+					To use camelcase serializer, add below line of code in WebApiConfig.cs
+					and import Newtonsoft.Json.Serializer;
+
+						var settings = config.Formatters.JsonFormatter.SerializerSettings;
+						settings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+						settings.Formatting = Newtonsoft.Json.Formatting.Indented;					
+				
+					
+
+		Client Side Development:
+			Uses Bootbox.js 
+			install-package bootbox -version:4.3.0
+			install-package jquery.datatables -version:1.10.11
+		
+		Authentication and Authorization
+			There are 4 types of Authentication options
+				1. No Authentication
+				2. Individual User Accounts and also supports OAuth(Default)
+				3. Organisation Accounts
+				4. Windows Authentication
+				
+				It uses ASP.Net Identity framework.
+				                  
+				
+				History
+				
+				ASP.Net Membership ---> Simple Membership ---> Universal Provider --> ASP.Net Identity
+					
+				ASP.Net Identity
+				
+                           +--------------------+   +--------------------+
+                           |    Domain          |   |    API             |  UserManager
+           IdentityUser    |    Class           |   |    Services        |  RoleManager
+           Role            +--------------------+   +--------------------+  SignInManager
+                           
+                           +---------------------------------------------+             
+                           |                  We can plug our custom db  |  UserStore  
+                           |	Persistence   here for choice of db store|  roleStore
+                           +---------------------------------------------+		
+                           	
+                           
+		 
+			Authorize etc are called as Filter or Attribute.
+			We can add attribute to entire application in FilterConfig.cs as
+				filters.Add(new AuthorizeAttribute());
+				
+			to skip certain are use [AllowAnonymous]
+			
+			
+		OAuth
+
+			App      ---------------------->       Facebook
+
+					Register our app with facebook
+					<--- key and secrect
+					
+				    Redirected to key, secrect
+												Login
+					<-- Authorization token	
+						
+					App verifies with facebook for autho token
+					came from facebook or not
+
+						Authentication token + 
+						Key  + Secrect --->
+						
+						
+					Facebook in response with this vaerifies and returns 
+					a access token	
+					<----- Access token 	
+		
+		
+		Using Social logins
+			Two steps process
+				1. Enable SSL
+				2. Register our app with facebook
+				
+		to disable non https request add a new filter to FilterConfig.cs
+			filters.Add(new RequireHttpsAttribute());
+		
+	Performance Optimisation.
+		3 tier architechre.
+						
+							Client      (Browser)
+							Application (IIS)
+							Data        (SqlServer) mostly occur here
+							
+							
+							Client Tier          |`.    Less observable gain
+							                     |  \
+ 							Application Tier     |   \
+							                     |    \
+							Data Tier            |     \  More gain
+							                     +------+
+												 
+				Data tier
+					Schema Issue
+						Check pkey, fkey and index 
+					EAV pattern (Entity Attribute Value)
+						Dont keep it generic tables.
+						- ckeck execution plan in sql server
+						- keep room for stored procedure for complex queries.
+					Use caching
+					
+					Wonderull Tool Glimpse
+						install-package glimpse.mvc5
+						install-package glimpse.ef6
+						
+						run server and visit to https://localhost:XXXX/glimpse.axd
+					
+						use this as a diagnostic tool, to inspect various kind of requests.
+					
+				Application Tier 
+					use data caching to improve performance
+					
+					* Output Caching(For Html)
+					
+						use OutputCache filter/attribute and can be applied to action or a 
+						controller
+						
+												use Client if specfic to client else use | cache validity by parameters
+						[OutputCache(Duration=50, Location=OutputCacheLocation.Server, VaryByParam="genre")]
+						public ActionResult Index()
+						{
+						
+						}
+					
+					* Data caching.
+						to use data cache add a reference of library named System.Runtime.Caching
+						and import System.Runtime.Caching.MemoryCache; 
+				
+						public ViewResult Index()
+						{	
+						   if (MemoryCache.Default["Genres"] == null)
+						   {
+								MemoryCache.Default["Genres"] = _context.Genres.ToList();
+						   }
+							
+							var genres = MemoryCache.Default["Genres"] as IEnumerable<Genres>;
+							return View();
+						}	
+					
+					  sync & Await
+						 for web it increases scalability and not the performance in a 
+						 general sense.
+						
+					3 
+						Use Release build instead of Debug for production/deployment
+					
+					4 Disable Session
+					    Why?
+						A piece of memory in the web server allocated to each user to store 
+						temporary data during the session, and here is the problem the more 
+						user the more memory consumption on web server which kills the 
+						scalability.
+						To make a session scalable these days use rest.
+						
+						to disable in VS
+						goto Web.config--> system.web --> and add 
+						<Sessionstate mode="Off"> </Sessionstate>
+							
+			Client Tier
+				1. Reduce number of request from client to server.
+				2. Reduce size of the response.
+							 
+			
+		
+		Entire App
+			for autocomplete use Type-ahead pluging developed by twitter team.
+			install-package Twitter.Typeahead
+			
+			this just fetches the js file, for css file manually copy from the web file by 
+			inspecting source code.
+			
+			for toast notification use pluging called toaster.js
+			install-package toastr
+			
+			
+		Deployment
+
+			update-database -script -SourceMigration=SeedUser
+
+		For logging Unhandled exception
+			us Elmah
+						
+			install-package Elmah
+			
+			to see errors
+			
+			https://localhost:XXXX/elmah.axd
+			
+		
+
+From Manzoor's 			
+		Securing Web App using Api keys
+		===============================
+				Handling Exception in Rest Calls
+					1. Use HttpResponseException
+						 throw new HttpResponseException(HttpStatusCode.BadRequest)
+					2. Implement ExceptionFilterAttribute	 
+						1. Create a MyExceptionAttribute.cs file inheritting from 
+						   ExceptionFilterAttribute.
+						2. Override OnException method for Exception and Prepare response.
+						
+					It can be used as Action, Controller or even at Application level 
+					by adding config.Filter.Add(new MyExceptionAttribute()) in WebApiConfig.cs
+						
+				Security in Web Api
+					1. Authentication
+						Using Api keys which is saved against our database., after reading it we assign
+						to Principle object and there by we chech for roles.
+						
+						Steps
+							1. Use Authorize Attribute(Create a custom handler and set attribute)
+							2. Override SendAsync() of DelegatingHandling
+								- Reading Api keys from request's query string & Header 
+								- Create Principle object(Identity)
+								- Set Current User 
+									If we are using IIS then set identity to HttpContext 
+									If we not using IIS then set identity to Thread.CurrentPrinciple
+							4. Register this handler in Application_Start()		
+					2. Authorization
+						
+					
+End From Manzoor's 				
+
+
+------------------------------------------------------------------------------------------
+                                Collection and Generics
+------------------------------------------------------------------------------------------		
+
+
+	Arrays
+		Reference Type, new keyword, fixed size and we define type and size of array
+		
+		1
+			string[] colorOptions;
+			colorOptions = newstring[4];
+		2
+			string[] colorOptions = newstring[4];
+		3	
+			var colorOptions = newstring[4];
+			
+		Do:
+			1. Consider using an array, when the required size of a list can be determined at 
+			   design time
+			2. Use a plural variable name for the array
+		
+		Avoid: 
+			Using an array when the size of the list is not known
+			
+		Collection Initializers
+				string[] colorOptions= newstring[4] {"Red", "Espresso", "White", "Navy"};
+				string[] colorOptions= {"Red", "Espresso", "White", "Navy"};
+				string[] colorOptions= {"Red", "Espresso", "White", GetMyFavoriteColor()};
+		
+		Array Initialization Best Practices
+			Do:
+				Use collection initializers
+			Avoid:
+				Manually populating an array
+		
+	Generics
+		public class OperationResult<T>
+		{ 
+			//important
+			public OperationResult()
+			{
+			}
+			
+			public OperationResult(T result,string message):this()
+			{
+				this.Result = result;
+				this.Message=message;
+			}
+				
+			public T Result 
+			{
+				get;
+				set;
+			}
+			
+			public string Message
+			{
+				get;
+				set;
+			}
+		}
+		
+		Do:
+			Use generics to build reusable, type-neutral classes
+			Use T as the type parameter for classes with one type parameter
+			Prefix descriptive type parameter names with T
+				publicclassOpResult<TResult,TMessage>
+		Avoid:
+			Using generics when not needed
+			Using single-letter names when defining multiple type parameters
+				Use a descriptive name instead
+			
+		Defining Generic Methods
+			public int RetrieveValue(string sql,int defaultValue)
+			public T RetrieveValue(string sql,T defaultValue)
+			public class VendorRepository<T>
+			public T RetrieveValue<T>(string sql,T defaultValue)
+		
+		Constraint	
+		+-----------------------------------------------------------+	
+		|  where T: struct   | Value type                           |
+		|  where T: class    | Reference type                       |
+		|  where T: new()    | Type with parameterlessconstructor   |
+		|  where T: Vendor   | Be or derive from Vendor             |
+		|  where T: IVendor  | Be or implement the IVendorinterface |
+	    +-----------------------------------------------------------+
+		
+         +----------------------------------------------------------------------------+
+		 | 	Array                               | Generic List                        |
+		 +--------------------------------------+-------------------------------------+
+         | Strongly typed                       | Strongly typed                      |
+         | Fixed length                         | Expandable                          |
+         | No ability to add or remove elements | Can add, insert, or remove elements |
+         | Multi-dimensional                    | One-dimensional                     |
+         +----------------------------------------------------------------------------+     
+		 
+	Generic List (List<T>)
+			
+			List<int>
+			List<decimal>
+			List<string>
+			List<Product>
+
+
+		Declaring and Initializing a List
+			List<string> colorOptions;
+			colorOptions = new List<string>();
+			List<string> colorOptions = new List<string>();
+			var colorOptions = new List<string>();
+		
+		Collection Initializers	
+			var colorOptions = new List<string>() {"Red","Espresso","White","Navy" };
+
+		Declaring, Initializing, and Populating a List
+			var vendors = new List<Vendor>();
+			
+			var vendor = new Vendor(){VendorId=5,CompanyName="ABCCorp",Email="abc@abc.com"};vendors.Add(vendor);
+				vendor = new Vendor(){VendorId=8,CompanyName="XYZInc",Email="xyz@xyz.com"};vendors.Add(vendor);
+				
+		   vendors.Add(new Vendor(){VendorId=5,CompanyName="ABC Inc",Email="abc@abc.com"});
+		   vendors.Add(new Vendor(){VendorId=8,CompanyName="XYZ Inc",Email="xyz@xyz.com"});
+		   
+		   
+		   Common C# Lists by Namespace
+					System
+						-Array
+					System.Collections(.NET 1)    (Obselete)
+						-ArrayList
+					System.Collections.Generics(.NET 2+)
+						-List<T>
+						-LinkedList<T>
+						-Queue<T>
+						-Stack<T>
+		Selecting an Appropriate List	
+				System.Collections.ObjectModel
+					- Appropriate for a reusable library
+					- ReadOnlyCollection
+					- ObservableCollection			
+				System.Collections.Specialized
+					- Specialty collections
+					- StringCollection
+				System.Collections.Concurrent
+					- Thread-safe list classes
+					
+		Dictionary
+		
+		Common C# Dictionaries by Namespace
+				System.Collections(.NET 1)
+				System.Collections.
+					- Dictionary<TKey,TValue>
+					- SortedList<TKey,TValue>
+					- SortedDictionary<TKey,TValue>
+					
+					
+	Interface:
+		- A specification identifying a related set of properties and methods.
+		- A class commits to supporting the specification by implementing the interface.
+		- Use the interface as a data typeto work with any class that implements the interface.				
+		
+		
+		
+------------------------------------------------------------------------------------------
+							Reflection
+------------------------------------------------------------------------------------------
+
+Namespace
+	System.Reflection
+		It has over 100+ properties, and Get.. are of very significant properties
+
+	Important class
+		Type
+			GetType
+			GetMemberInfo
+			GetMethodInfo
+			GetPropertyInfo
+			GetFieldInfo
+			...
+		Activator
+			CreateInstance
+		Assembly
+			Load
+			LoadFrom
+			GetTypes
+			GetNames
+			GetFiles
+			...
+		ILGenerator
+			Emit
+			...
+			
+Things We can do but avoid,
+	Reflection on a Property
+		Type sampleType = typeof(SampleClass);
+		PropertyInfo cacheproperty = sampleType.GetProperty("CachedItems");
+		List<string> cacheValue = cacheproperty.GetValue(privateSample) as List<string>;
+		
+	Note:
+		- Above code was usefull prior .NET 4.0 to invoke COM objects
+		- "dynamic" is a better choice for interacting with COM (.NET 4.0+)
+
+Thing we want to do:
+	
+	Get a CLR Type based on the type name (Type class)
+		public static Type GetType(string name)
+		
+	Create an Instance of a Type (Activator class)
+		public static object CreateInstance(Type type)
+	
+	Load an Assembly based on a file name (Assembly class)
+		public static Assembly LoadFrom(string assemblyFile)
+	Get the Types exposed on an Assembly (Assembly class)
+		public IEnumerable<Type> ExportedTypes {get;}
+	Check to see if a Type implements an Interface (Type class)	
+		public bool IsAsssignableFrom(Type c)
+		
+Reflection Drawback
+			- Takes longer time to execute (Speed)
+			- Dont rely on private members (Safety)
+			
+		
+
